@@ -24,7 +24,14 @@ const upload = multer({ storage: storage });
 router.get('/', publicationController.getPublications);
 
 // POST /api/publications (Protegida, solo usuarios verificados pueden publicar)
-// 'imagen' es el nombre del campo en el formulario multipart
 router.post('/', verifyToken, upload.single('imagen'), publicationController.createPublication);
+
+// Mis publicaciones (debe ir ANTES de /:id para que Express no confunda "my" con un ID dinámico)
+router.get('/my', verifyToken, publicationController.getMyPublications);
+
+// Detalle, actualización y eliminación
+router.get('/:id', publicationController.getPublicationById);
+router.put('/:id', verifyToken, publicationController.updatePublication);
+router.delete('/:id', verifyToken, publicationController.deletePublication);
 
 module.exports = router;

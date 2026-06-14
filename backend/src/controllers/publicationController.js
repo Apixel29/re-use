@@ -82,3 +82,92 @@ exports.getPublications = async (req, res) => {
         res.status(500).json({ error: 'Error interno del servidor.' });
     }
 };
+
+exports.getMyPublications = async (req, res) => {
+    const userId = req.user.id;
+    try {
+        const result = await db.query(
+            `SELECT p.*, c.Nombre as Categoria 
+             FROM Producto p 
+             JOIN Categoria c ON p.ID_Categoria = c.ID_Categoria 
+             WHERE p.ID_Usuario = $1 
+             ORDER BY p.Fecha_Publicacion DESC`,
+            [userId]
+        );
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error al obtener mis publicaciones:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+exports.getPublicationById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await db.query(
+            `SELECT p.*, c.Nombre as Categoria, u.Nombre as Vendedor, u.Correo_Institucional 
+             FROM Producto p 
+             JOIN Categoria c ON p.ID_Categoria = c.ID_Categoria 
+             JOIN Usuario u ON p.ID_Usuario = u.ID_Usuario 
+             WHERE p.ID_Producto = $1`,
+            [id]
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Publicación no encontrada.' });
+        }
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error al obtener publicación:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+exports.updatePublication = async (req, res) => {
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { titulo, descripcion, precio, estado, tipo_adquisicion, stock, id_categoria } = req.body;
+
+    try {
+        // 1. Verificar existencia y propiedad
+        const checkOwner = await db.query('SELECT ID_Usuario FROM Producto WHERE ID_Producto = $1', [id]);
+        if (checkOwner.rows.length === 0) return res.status(404).json({ error: 'Publicación no encontrada.' });
+        if (checkOwner.rows[0].id_usuario !== userId) return res.status(403).json({ error: 'No tienes permiso para editar esta publicación.' });
+
+        // 2. Actualizar datos usando COALESCE para no sobreescribir con nulos lo que no se envíe
+        const updateQuery = `
+            UPDATE Producto 
+            SET Titulo = COALESCE($1, Titulo),
+                Descripcion = COALESCE($2, Descripcion),
+                Precio = COALESCE($3, Precio),
+                Estado = COALESCE($4, Estado),
+                Tipo_Adquisicion = COALESCE($5, Tipo_Adquisicion),
+                Stock = COALESCE($6, Stock),
+                ID_Categoria = COALESCE($7, ID_Categoria)
+            WHERE ID_Producto = $8
+            RETURNING *;
+        `;
+        const result = await db.query(updateQuery, [titulo, descripcion, precio, estado, tipo_adquisicion, stock, id_categoria, id]);
+        
+        res.status(200).json({ message: 'Publicación actualizada', articulo: result.rows[0] });
+    } catch (error) {
+        console.error('Error al actualizar publicación:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+exports.deletePublication = async (req, res) => {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    try {
+        const checkOwner = await db.query('SELECT ID_Usuario FROM Producto WHERE ID_Producto = $1', [id]);
+        if (checkOwner.rows.length === 0) return res.status(404).json({ error: 'Publicación no encontrada.' });
+        if (checkOwner.rows[0].id_usuario !== userId) return res.status(403).json({ error: 'No tienes permiso para eliminar esta publicación.' });
+
+        await db.query('DELETE FROM Producto WHERE ID_Producto = $1', [id]);
+        res.status(200).json({ message: 'Publicación eliminada correctamente' });
+    } catch (error) {
+        console.error('Error al eliminar publicación:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
