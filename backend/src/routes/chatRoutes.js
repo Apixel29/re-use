@@ -3,6 +3,9 @@ const router = express.Router();
 const chatController = require('../controllers/chatController');
 const verifyToken = require('../middlewares/authMiddleware');
 
+// GET /api/chats
+router.get('/', verifyToken, chatController.getUserChats);
+
 // POST /api/chats
 router.post('/', verifyToken, chatController.createChat);
 
