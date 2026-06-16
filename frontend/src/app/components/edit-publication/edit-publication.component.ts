@@ -624,6 +624,7 @@ export class EditPublicationComponent implements OnInit {
   isEditMode = signal(false);
   uploadedImages = signal<string[]>([]);
   activeImageIndex = signal<number>(0);
+  selectedFile: File | null = null;
 
   ngOnInit() {
     // Check if ID is provided in route
@@ -649,8 +650,8 @@ export class EditPublicationComponent implements OnInit {
         ? JSON.parse(JSON.stringify(art.specifications)) // deep copy
         : [{ key: '', value: '' }];
       
-      // Load existing images if they are base64 uploaded ones
-      if (art.images && art.images.length > 0 && art.images[0].startsWith('data:')) {
+      // Load existing images if they are base64 or server-uploaded ones
+      if (art.images && art.images.length > 0 && (art.images[0].startsWith('data:') || art.images[0].startsWith('http'))) {
         this.uploadedImages.set([...art.images]);
       } else {
         this.uploadedImages.set([]);
@@ -678,6 +679,7 @@ export class EditPublicationComponent implements OnInit {
     if (!input.files || input.files.length === 0) return;
 
     const files = Array.from(input.files);
+    this.selectedFile = files[0];
     
     files.forEach(file => {
       if (!file.type.startsWith('image/')) return;
@@ -707,6 +709,9 @@ export class EditPublicationComponent implements OnInit {
     const current = [...this.uploadedImages()];
     current.splice(index, 1);
     this.uploadedImages.set(current);
+    if (index === 0) {
+      this.selectedFile = null;
+    }
     
     // Adjust active index
     if (this.activeImageIndex() >= current.length) {
@@ -714,7 +719,7 @@ export class EditPublicationComponent implements OnInit {
     }
   }
 
-  onSubmit(event: Event) {
+  async onSubmit(event: Event) {
     event.preventDefault();
     if (!this.title || !this.category || !this.state || !this.description || !this.stock) return;
 
@@ -724,37 +729,38 @@ export class EditPublicationComponent implements OnInit {
     // Force price to 0 if not selling
     const finalPrice = this.acquisitionType === 'Venta' ? this.price : 0;
 
-    if (this.isEditMode() && this.articleId) {
-      // Edit mode
-      this.mockService.updatePublication(this.articleId, {
-        title: this.title,
-        category: this.category,
-        state: this.state as any,
-        description: this.description,
-        acquisitionType: this.acquisitionType,
-        price: finalPrice,
-        stock: this.stock,
-        specifications: cleanSpecs,
-        images: this.uploadedImages().length > 0 ? this.uploadedImages() : ['generic_hardware']
-      });
-      alert('Publicación actualizada con éxito.');
-    } else {
-      // Create mode
-      this.mockService.addPublication({
-        title: this.title,
-        category: this.category,
-        state: this.state as any,
-        description: this.description,
-        acquisitionType: this.acquisitionType,
-        price: finalPrice,
-        stock: this.stock,
-        specifications: cleanSpecs,
-        images: this.uploadedImages().length > 0 ? this.uploadedImages() : ['generic_hardware']
-      });
-      alert('Publicación creada con éxito.');
+    try {
+      if (this.isEditMode() && this.articleId) {
+        // Edit mode
+        await this.mockService.updatePublication(this.articleId, {
+          title: this.title,
+          category: this.category,
+          state: this.state as any,
+          description: this.description,
+          acquisitionType: this.acquisitionType,
+          price: finalPrice,
+          stock: this.stock,
+          specifications: cleanSpecs
+        });
+        alert('Publicación actualizada con éxito.');
+      } else {
+        // Create mode
+        await this.mockService.addPublication({
+          title: this.title,
+          category: this.category,
+          state: this.state as any,
+          description: this.description,
+          acquisitionType: this.acquisitionType,
+          price: finalPrice,
+          stock: this.stock,
+          specifications: cleanSpecs
+        }, this.selectedFile || undefined);
+        alert('Publicación creada con éxito.');
+      }
+      // Go back to profile
+      this.router.navigate(['/profile']);
+    } catch (error) {
+      alert('Hubo un error al procesar la publicación.');
     }
-
-    // Go back to profile
-    this.router.navigate(['/profile']);
   }
 }

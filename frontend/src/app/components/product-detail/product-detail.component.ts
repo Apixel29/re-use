@@ -28,8 +28,8 @@ import { MockDataService, Article } from '../../services/mock-data.service';
         <div class="gallery-column">
           <!-- Main Image -->
           <div class="main-image-card card-premium">
-            <div class="image-placeholder" [class.has-img]="article()?.images && article()!.images[activeImageIndex()]?.startsWith('data:')">
-              <img *ngIf="article()?.images && article()!.images[activeImageIndex()]?.startsWith('data:'); else detailDefaultSvg" [src]="article()!.images[activeImageIndex()]" class="detail-uploaded-img" alt="Imagen del componente" />
+            <div class="image-placeholder" [class.has-img]="article()?.images && article()!.images[activeImageIndex()] && (article()!.images[activeImageIndex()].startsWith('data:') || article()!.images[activeImageIndex()].startsWith('http'))">
+              <img *ngIf="article()?.images && article()!.images[activeImageIndex()] && (article()!.images[activeImageIndex()].startsWith('data:') || article()!.images[activeImageIndex()].startsWith('http')); else detailDefaultSvg" [src]="article()!.images[activeImageIndex()]" class="detail-uploaded-img" alt="Imagen del componente" />
               <ng-template #detailDefaultSvg>
                 <svg viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -45,7 +45,7 @@ import { MockDataService, Article } from '../../services/mock-data.service';
 
           <!-- Thumbnails -->
           <div class="thumbnails-row">
-            <ng-container *ngIf="article()?.images && article()!.images[0]?.startsWith('data:'); else defaultThumbnails">
+            <ng-container *ngIf="article()?.images && article()!.images[0] && (article()!.images[0].startsWith('data:') || article()!.images[0].startsWith('http')); else defaultThumbnails">
               <div 
                 *ngFor="let img of article()?.images; let i = index" 
                 class="thumb-card" 

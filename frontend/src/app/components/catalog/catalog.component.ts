@@ -112,7 +112,7 @@ import { MockDataService, Article } from '../../services/mock-data.service';
               <div class="card-image-wrapper" [routerLink]="['/product', item.id]">
                 <!-- Draw decorative canvas placeholder or show uploaded image -->
                 <div class="placeholder-img">
-                  <img *ngIf="item.images && item.images[0] && item.images[0].startsWith('data:'); else defaultSvg" [src]="item.images[0]" class="card-uploaded-img" alt="Foto del componente" />
+                  <img *ngIf="item.images && item.images[0] && (item.images[0].startsWith('data:') || item.images[0].startsWith('http')); else defaultSvg" [src]="item.images[0]" class="card-uploaded-img" alt="Foto del componente" />
                   <ng-template #defaultSvg>
                     <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
                       <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>

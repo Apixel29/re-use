@@ -724,12 +724,13 @@ export class ProfileComponent {
 
     const reader = new FileReader();
     reader.onload = () => {
-      const url = reader.result as string;
-      this.pendingAction = () => {
-        this.mockService.updateUserProfile({
-          avatarUrl: url
-        });
-        this.triggerToast('Foto de perfil actualizada correctamente.');
+      this.pendingAction = async () => {
+        try {
+          await this.mockService.updateUserProfile({}, file);
+          this.triggerToast('Foto de perfil actualizada correctamente.');
+        } catch (err) {
+          alert('Error al actualizar el avatar.');
+        }
       };
       this.showConfirmModal.set(true);
     };
@@ -743,13 +744,17 @@ export class ProfileComponent {
     event.preventDefault();
     if (!this.name || !this.boleta || !this.phone) return;
 
-    this.pendingAction = () => {
-      this.mockService.updateUserProfile({
-        name: this.name,
-        boleta: this.boleta,
-        phone: this.phone
-      });
-      this.triggerToast('Datos personales actualizados correctamente.');
+    this.pendingAction = async () => {
+      try {
+        await this.mockService.updateUserProfile({
+          name: this.name,
+          boleta: this.boleta,
+          phone: this.phone
+        });
+        this.triggerToast('Datos personales actualizados correctamente.');
+      } catch (err) {
+        alert('Error al actualizar el perfil.');
+      }
     };
     this.showConfirmModal.set(true);
   }
@@ -763,11 +768,16 @@ export class ProfileComponent {
       return;
     }
 
-    this.pendingAction = () => {
-      this.currentPassword = '';
-      this.newPassword = '';
-      this.confirmPassword = '';
-      this.triggerToast('Contraseña actualizada correctamente.');
+    this.pendingAction = async () => {
+      try {
+        await this.mockService.updatePassword(this.currentPassword, this.newPassword);
+        this.currentPassword = '';
+        this.newPassword = '';
+        this.confirmPassword = '';
+        this.triggerToast('Contraseña actualizada correctamente.');
+      } catch (err: any) {
+        alert(err.error || 'La contraseña actual es incorrecta.');
+      }
     };
     this.showConfirmModal.set(true);
   }

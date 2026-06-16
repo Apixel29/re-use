@@ -110,6 +110,13 @@
         <button type="submit" class="btn-primary btn-block">Registrarse</button>
       </form>
 
+      <div *ngIf="errorMessage" class="error-message" style="margin-top: 15px; color: #e11d48; text-align: center; font-size: 0.9rem; font-weight: 500;">
+        {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="success-message" style="margin-top: 15px; color: #10b981; text-align: center; font-size: 0.9rem; font-weight: 500;">
+        {{ successMessage }}
+      </div>
+
       <div class="form-footer">
         <a routerLink="/login" class="login-link">¿Ya tienes cuenta? Inicia sesión aquí</a>
       </div>
