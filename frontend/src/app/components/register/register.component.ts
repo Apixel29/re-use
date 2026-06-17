@@ -185,8 +185,8 @@ export class RegisterComponent {
         boleta: boletaTrim
       });
 
-      // Redirect immediately to login on success
-      this.router.navigate(['/login']);
+      // Redirect to login with parameter to show activation message
+      this.router.navigate(['/login'], { queryParams: { registered: 'true', email: emailStr } });
     } catch (err: any) {
       console.error('Register caught error:', err);
       

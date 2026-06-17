@@ -16,6 +16,25 @@
   <!-- Right Form Side -->
   <div class="form-side">
     <div class="form-card card-premium">
+      <!-- Success Registration Alert -->
+      <div *ngIf="showRegisterAlert()" class="register-success-alert animate-fade">
+        <div class="alert-icon-circle">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" class="draw-check">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="alert-content">
+          <h4>¡Registro Exitoso!</h4>
+          <p>Hemos enviado un enlace de activación a tu correo <strong>{{ registeredEmail() }}</strong>. Por favor, verifícalo para activar tu cuenta.</p>
+        </div>
+        <button type="button" class="alert-close-btn" (click)="closeAlert()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
       <h2 class="form-title">Iniciar Sesión</h2>
 
       <form (submit)="onLogin($event)" novalidate>
@@ -53,6 +72,8 @@
       </div>
 
       <div class="form-footer">
+        <a routerLink="/forgot-password" class="forgot-link">¿Olvidaste tu contraseña?</a>
+        <div class="footer-divider"></div>
         <a routerLink="/register" class="register-link"
           >¿Eres nuevo y de ESCOM? Haz el registro aquí</a
         >

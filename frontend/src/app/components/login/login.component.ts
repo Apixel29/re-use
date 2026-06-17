@@ -1,5 +1,5 @@
-import { Component, inject, ChangeDetectorRef } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Component, inject, ChangeDetectorRef, OnInit, signal } from '@angular/core';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MockDataService } from '../../services/mock-data.service';
@@ -12,15 +12,39 @@ import { MockDataService } from '../../services/mock-data.service';
   styleUrls: ['./login.component.css'],
 })
 
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   email = '';
   password = '';
 
   errorMessage = '';
 
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private mockService = inject(MockDataService);
   private cdr = inject(ChangeDetectorRef);
+
+  showRegisterAlert = signal(false);
+  registeredEmail = signal('');
+
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      if (params['registered'] === 'true') {
+        this.showRegisterAlert.set(true);
+        if (params['email']) {
+          this.registeredEmail.set(params['email']);
+        }
+      }
+    });
+  }
+
+  closeAlert() {
+    this.showRegisterAlert.set(false);
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { registered: null, email: null },
+      queryParamsHandling: 'merge'
+    });
+  }
 
   async onLogin(event: Event) {
     event.preventDefault();

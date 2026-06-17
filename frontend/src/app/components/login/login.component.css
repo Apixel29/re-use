@@ -130,6 +130,113 @@
   text-decoration: underline;
 }
 
+.forgot-link {
+  display: inline-block;
+  font-size: 0.95rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  transition: color var(--transition-fast);
+  text-decoration: none;
+  margin-bottom: 4px;
+}
+
+.forgot-link:hover {
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+.footer-divider {
+  margin: 12px auto;
+  width: 50%;
+  border-top: 1px solid var(--border-color);
+}
+
+.register-success-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background-color: #e0f2f1;
+  border: 1px solid rgba(10, 136, 138, 0.3);
+  border-left: 4px solid var(--accent-color);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(10, 136, 138, 0.1);
+}
+
+.alert-icon-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--accent-color);
+  color: white;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.alert-content {
+  flex-grow: 1;
+  text-align: left;
+}
+
+.alert-content h4 {
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #003366;
+}
+
+.alert-content p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.alert-content strong {
+  word-break: break-all;
+}
+
+.alert-close-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  margin-top: 2px;
+}
+
+.alert-close-btn:hover {
+  color: #334155;
+}
+
+.animate-fade {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.draw-check {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: drawStroke 0.6s 0.2s ease-out forwards;
+}
+
+@keyframes drawStroke {
+  to { stroke-dashoffset: 0; }
+}
+
 @media (max-width: 900px) {
   .login-container {
     grid-template-columns: 1fr;

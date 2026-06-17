@@ -70,7 +70,7 @@ exports.verify = async (req, res) => {
     const { token } = req.params;
 
     if (!token) {
-        return res.status(400).json({ error: 'Falta el token de verificación.' });
+        return res.redirect('http://localhost:4200/email-verified?status=error&message=Falta el token de verificación.');
     }
 
     try {
@@ -89,18 +89,15 @@ exports.verify = async (req, res) => {
 
         // Si el token es válido pero el usuario ya no existe en la BD
         if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Usuario no encontrado.' });
+            return res.redirect('http://localhost:4200/email-verified?status=error&message=Usuario no encontrado.');
         }
 
-        // 3. Confirmación exitosa
-        res.status(200).json({ 
-            message: 'Cuenta verificada exitosamente. Ya puedes iniciar sesión.' 
-        });
+        // 3. Confirmación exitosa - redirección al frontend
+        res.redirect('http://localhost:4200/email-verified?status=success');
 
     } catch (error) {
         console.error('Error en verificación:', error);
-        // jwt.verify arroja error si el token expiró o fue manipulado
-        res.status(400).json({ error: 'Token inválido o expirado. Solicita un nuevo enlace.' });
+        res.redirect(`http://localhost:4200/email-verified?status=error&message=${encodeURIComponent(error.message || 'Token inválido o expirado')}`);
     }
 };
 
@@ -157,5 +154,71 @@ exports.login = async (req, res) => {
     } catch (error) {
         console.error('Error en el login:', error);
         res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+exports.forgotPassword = async (req, res) => {
+    const { correo } = req.body;
+
+    if (!correo || !correo.endsWith('@alumno.ipn.mx')) {
+        return res.status(400).json({ error: 'Validación fallida: Solo se permiten correos @alumno.ipn.mx.' });
+    }
+
+    try {
+        const result = await db.query('SELECT * FROM Usuario WHERE Correo_Institucional = $1', [correo]);
+        const user = result.rows[0];
+
+        if (!user) {
+            // Retornamos 200 genérico para evitar enumeración de cuentas
+            return res.status(200).json({ message: 'Si el correo está registrado, se enviará un enlace de recuperación.' });
+        }
+
+        const resetToken = jwt.sign(
+            { id: user.id_usuario, email: user.correo_institucional },
+            process.env.JWT_SECRET,
+            { expiresIn: '15m' }
+        );
+
+        console.log(`[MVP SIMULACIÓN EMAIL] Enlace de recuperación para ${correo}: http://localhost:4200/reset-password?token=${resetToken}`);
+
+        res.status(200).json({ 
+            message: 'Si el correo está registrado, se enviará un enlace de recuperación.' 
+        });
+    } catch (error) {
+        console.error('Error en recuperar contraseña:', error);
+        res.status(500).json({ error: 'Error interno del servidor.' });
+    }
+};
+
+exports.resetPassword = async (req, res) => {
+    const { token, contrasena } = req.body;
+
+    if (!token || !contrasena) {
+        return res.status(400).json({ error: 'Token y contraseña son requeridos.' });
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const userId = decoded.id;
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(contrasena, salt);
+
+        const updateQuery = `
+            UPDATE Usuario 
+            SET Contrasena = $1 
+            WHERE ID_Usuario = $2 
+            RETURNING ID_Usuario;
+        `;
+        const result = await db.query(updateQuery, [hashedPassword, userId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado.' });
+        }
+
+        res.status(200).json({ message: 'Contraseña restablecida exitosamente.' });
+    } catch (error) {
+        console.error('Error en restablecer contraseña:', error);
+        res.status(400).json({ error: 'El enlace de recuperación es inválido o ha expirado.' });
     }
 };

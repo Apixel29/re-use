@@ -7,6 +7,9 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { EditPublicationComponent } from './components/edit-publication/edit-publication.component';
 import { SavedPublicationsComponent } from './components/saved-publications/saved-publications.component';
 import { MessagesComponent } from './components/messages/messages.component';
+import { EmailVerifiedComponent } from './components/email-verified/email-verified.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './components/reset-password/reset-password.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -19,5 +22,8 @@ export const routes: Routes = [
   { path: 'edit-publication/:id', component: EditPublicationComponent, title: 'RE-USE | Editar Publicación' },
   { path: 'saved', component: SavedPublicationsComponent, title: 'RE-USE | Guardados' },
   { path: 'messages', component: MessagesComponent, title: 'RE-USE | Mensajes' },
+  { path: 'email-verified', component: EmailVerifiedComponent, title: 'RE-USE | Cuenta Verificada' },
+  { path: 'forgot-password', component: ForgotPasswordComponent, title: 'RE-USE | Recuperar Contraseña' },
+  { path: 'reset-password', component: ResetPasswordComponent, title: 'RE-USE | Nueva Contraseña' },
   { path: '**', redirectTo: 'login' }
 ];
