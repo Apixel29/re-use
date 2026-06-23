@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import axios from 'axios';
+import { API_BASE_URL } from '../../services/mock-data.service';
 
 @Component({
   selector: 'app-reset-password',
@@ -394,7 +395,7 @@ export class ResetPasswordComponent implements OnInit {
     this.loading.set(true);
 
     try {
-      await axios.post('http://localhost:3000/api/auth/reset-password', {
+      await axios.post(`${API_BASE_URL}/api/auth/reset-password`, {
         token: currentToken,
         contrasena: this.contrasena
       });

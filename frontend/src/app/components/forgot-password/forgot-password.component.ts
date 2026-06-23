@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import axios from 'axios';
+import { API_BASE_URL } from '../../services/mock-data.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -341,7 +342,7 @@ export class ForgotPasswordComponent {
     this.loading.set(true);
 
     try {
-      await axios.post('http://localhost:3000/api/auth/forgot-password', { correo: this.email });
+      await axios.post(`${API_BASE_URL}/api/auth/forgot-password`, { correo: this.email });
       this.emailSent.set(true);
     } catch (err: any) {
       console.error(err);

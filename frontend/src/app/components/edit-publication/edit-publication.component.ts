@@ -2,7 +2,7 @@ import { Component, inject, signal, computed, OnInit, effect, ChangeDetectorRef 
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MockDataService, Article, Specification } from '../../services/mock-data.service';
+import { MockDataService, Article, Specification, API_BASE_URL } from '../../services/mock-data.service';
 
 @Component({
   selector: 'app-edit-publication',
@@ -974,7 +974,7 @@ export class EditPublicationComponent implements OnInit {
       if (this.isEditMode() && currentId) {
         // Compute which existing images are kept (not newly uploaded base64 data URLs)
         const keptImages = this.uploadedImages().filter(img => !img.startsWith('data:'));
-        const keptRelativePaths = keptImages.map(img => img.replace('http://localhost:3000', ''));
+        const keptRelativePaths = keptImages.map(img => img.replace(API_BASE_URL, ''));
         const mantenerFotos = keptRelativePaths.join(',');
 
         // Edit mode

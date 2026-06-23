@@ -2,7 +2,7 @@ import { Injectable, signal, computed, effect, NgZone, inject } from '@angular/c
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+export const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3000'
   : 'https://reuse-backend-2x3h.onrender.com';
 
