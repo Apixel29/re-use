@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3000'
-  : 'https://reuse-backend-vwi2.onrender.com';
+  : 'https://reuse-backend-2x3h.onrender.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
