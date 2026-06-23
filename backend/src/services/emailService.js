@@ -26,7 +26,10 @@ const createTransporter = () => {
  */
 exports.sendVerificationEmail = async (to, name, link) => {
     const transporter = createTransporter();
-    if (!transporter) return;
+    if (!transporter) {
+        console.warn('[EMAIL SERVICE] Correo de verificación omitido. SMTP_USER y/o SMTP_PASS no están configurados en las variables de entorno.');
+        return;
+    }
 
     const fromAddress = process.env.SMTP_FROM || `"RE-USE" <${process.env.SMTP_USER}>`;
 
@@ -160,7 +163,10 @@ exports.sendVerificationEmail = async (to, name, link) => {
  */
 exports.sendPasswordResetEmail = async (to, name, link) => {
     const transporter = createTransporter();
-    if (!transporter) return;
+    if (!transporter) {
+        console.warn('[EMAIL SERVICE] Correo de restablecimiento de contraseña omitido. SMTP_USER y/o SMTP_PASS no están configurados en las variables de entorno.');
+        return;
+    }
 
     const fromAddress = process.env.SMTP_FROM || `"RE-USE" <${process.env.SMTP_USER}>`;
 
