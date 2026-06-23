@@ -661,6 +661,7 @@ export class MessagesComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private location = inject(Location);
+  private cdr = inject(ChangeDetectorRef);
 
   goBack(event: Event) {
     event.preventDefault();
@@ -679,6 +680,15 @@ export class MessagesComponent implements OnInit {
   private initialLoad = true;
 
   constructor() {
+    effect(() => {
+      // Registrar dependencia del signal de chats
+      const chats = this.mockService.chats();
+      // Forzar ciclo de detección de cambios en el siguiente frame
+      setTimeout(() => {
+        this.cdr.detectChanges();
+      }, 0);
+    });
+
     effect(() => {
       const list = this.mockService.chats();
       const activeParam = this.activeChatId();
