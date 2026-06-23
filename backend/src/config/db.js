@@ -16,14 +16,26 @@ const poolConfig = process.env.DATABASE_URL
 poolConfig.max = 10; // Límite de conexiones concurrentes en el pool
 poolConfig.idleTimeoutMillis = 30000;
 
-// Render y otros proveedores de BD en la nube requieren SSL
-if (isProduction || process.env.DB_SSL === 'true') {
+// Habilitar SSL si no es localhost/127.0.0.1 o si se fuerza por entorno
+const host = poolConfig.host || '';
+const connStr = poolConfig.connectionString || '';
+const isLocal = host === 'localhost' || host === '127.0.0.1' || connStr.includes('localhost') || connStr.includes('127.0.0.1');
+
+if (!isLocal || isProduction || process.env.DB_SSL === 'true') {
     poolConfig.ssl = {
         rejectUnauthorized: false
     };
 }
 
 const pool = new Pool(poolConfig);
+
+console.log('--- DB connection config debug ---');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('DB_SSL:', process.env.DB_SSL);
+console.log('DATABASE_URL is set:', !!process.env.DATABASE_URL);
+console.log('Is connection local:', isLocal);
+console.log('SSL configuration active:', !!poolConfig.ssl);
+console.log('----------------------------------');
 
 // Comprobar conexión al inicializar
 pool.connect((err, client, release) => {
