@@ -2,7 +2,9 @@ import { Injectable, signal, computed, effect, NgZone, inject } from '@angular/c
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000'
+  : 'https://reuse-backend-vwi2.onrender.com';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -315,18 +317,29 @@ export class MockDataService {
       imageList = ['generic_hardware'];
     }
 
+    const idVal = p.id_producto !== undefined ? p.id_producto : p.ID_Producto;
+    const titleVal = p.titulo !== undefined ? p.titulo : p.Titulo;
+    const sellerIdVal = p.id_usuario !== undefined ? p.id_usuario : p.ID_Usuario;
+    const sellerNameVal = p.vendedor !== undefined ? p.vendedor : p.Vendedor;
+    const sellerEmailVal = p.correo_institucional !== undefined ? p.correo_institucional : p.Correo_Institucional;
+    const sellerReputationVal = p.reputacion_vendedor !== undefined ? p.reputacion_vendedor : p.Reputacion_Vendedor;
+    const acquisitionTypeVal = p.tipo_adquisicion !== undefined ? p.tipo_adquisicion : p.Tipo_Adquisicion;
+    const priceVal = p.precio !== undefined ? p.precio : p.Precio;
+    const stockVal = p.stock !== undefined ? p.stock : p.Stock;
+    const categoryVal = p.categoria !== undefined ? p.categoria : p.Categoria;
+
     return {
-      id: p.id_producto.toString(),
-      title: p.titulo,
+      id: idVal ? idVal.toString() : '',
+      title: titleVal || '',
       description: descriptionText,
-      sellerId: p.id_usuario ? p.id_usuario.toString() : undefined,
-      sellerName: p.vendedor || 'Usuario',
-      sellerEmail: p.correo_institucional || '',
-      sellerReputation: parseFloat(p.reputacion_vendedor) || 4.5,
-      acquisitionType: p.tipo_adquisicion || 'Venta',
-      price: parseFloat(p.precio) || 0,
-      stock: p.stock || 1,
-      category: p.categoria || 'Componentes',
+      sellerId: sellerIdVal ? sellerIdVal.toString() : undefined,
+      sellerName: sellerNameVal || 'Usuario',
+      sellerEmail: sellerEmailVal || '',
+      sellerReputation: parseFloat(sellerReputationVal) || 4.5,
+      acquisitionType: acquisitionTypeVal || 'Venta',
+      price: parseFloat(priceVal) || 0,
+      stock: stockVal || 1,
+      category: categoryVal || 'Componentes',
       state: mappedState,
       images: imageList,
       specifications: specifications,

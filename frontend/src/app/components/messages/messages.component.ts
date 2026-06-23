@@ -16,10 +16,10 @@ import { MockDataService, Chat, Message } from '../../services/mock-data.service
       </svg>
     </button>
 
-    <div class="messages-container">
+    <div class="messages-container" [class.chat-open]="activeChatId() !== null">
       <h1 class="page-title">Mensajes</h1>
 
-      <div class="messages-layout card-premium">
+      <div class="messages-layout card-premium" [class.chat-open]="activeChatId() !== null">
         
         <!-- Left Sidebar: Chat List -->
         <aside class="chats-sidebar">
@@ -194,7 +194,7 @@ import { MockDataService, Chat, Message } from '../../services/mock-data.service
     .floating-back-btn {
       position: fixed;
       top: 100px;
-      left: 40px;
+      right: 40px;
       z-index: 99;
       width: 46px;
       height: 46px;
@@ -218,7 +218,7 @@ import { MockDataService, Chat, Message } from '../../services/mock-data.service
     }
     @media (max-width: 1200px) {
       .floating-back-btn {
-        left: 16px;
+        right: 16px;
         top: 90px;
         width: 40px;
         height: 40px;
@@ -247,6 +247,8 @@ import { MockDataService, Chat, Message } from '../../services/mock-data.service
     @media (max-width: 768px) {
       .messages-layout {
         grid-template-columns: 1fr;
+        height: calc(100vh - 160px);
+        min-height: 400px;
       }
       .chats-sidebar {
         display: block;
@@ -259,6 +261,22 @@ import { MockDataService, Chat, Message } from '../../services/mock-data.service
       }
       .messages-layout.chat-open .chat-box-area {
         display: block;
+      }
+      .messages-container {
+        position: relative;
+        padding-top: 0;
+      }
+      .messages-container.chat-open .page-title {
+        display: none;
+      }
+      .messages-container.chat-open .floating-back-btn {
+        display: none;
+      }
+      .messages-container.chat-open {
+        padding-top: 0;
+      }
+      .messages-layout.chat-open {
+        height: calc(100vh - 90px);
       }
     }
 

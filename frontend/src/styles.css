@@ -228,4 +228,7 @@ button, input, select, textarea {
   .form-row {
     grid-template-columns: 1fr;
   }
+  .container {
+    padding: 0 16px;
+  }
 }

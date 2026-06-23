@@ -226,6 +226,12 @@
   min-height: calc(100vh - 76px);
 }
 
+@media (max-width: 768px) {
+  .app-main-content {
+    padding-top: 16px;
+  }
+}
+
 .app-main-content.guest-padding {
   padding: 0;
   min-height: 100vh;

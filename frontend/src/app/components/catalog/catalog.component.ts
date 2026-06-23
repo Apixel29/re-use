@@ -10,21 +10,20 @@ import { MockDataService, Article } from '../../services/mock-data.service';
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="catalog-container">
-      <!-- Horizontal Navigation Tabs -->
-      <div class="top-nav-tabs">
-        <button 
-          *ngFor="let tab of tabs" 
-          [class.active]="selectedTab() === tab" 
-          (click)="selectTab(tab)"
-          class="tab-btn"
-        >
-          {{ tab }}
-        </button>
-      </div>
-
       <div class="catalog-layout">
         <!-- Left Sidebar Filters -->
-        <aside class="sidebar-filters">
+        <aside class="sidebar-filters" [class.drawer-open]="showFiltersDrawer()">
+          <!-- Close button for mobile drawer -->
+          <div class="drawer-header-mobile">
+            <h3>Filtros</h3>
+            <button type="button" (click)="closeFiltersDrawer()" class="btn-close-drawer">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
           <!-- Componentes Section -->
           <div class="filter-section">
             <h3 class="filter-title">Componentes</h3>
@@ -83,17 +82,27 @@ import { MockDataService, Article } from '../../services/mock-data.service';
           </button>
         </aside>
 
+        <!-- Backdrop overlay when drawer is open (only on mobile) -->
+        <div *ngIf="showFiltersDrawer()" class="drawer-backdrop" (click)="closeFiltersDrawer()"></div>
+
         <!-- Main Grid of Items -->
         <main class="grid-content">
           <div class="grid-header">
             <p class="results-count">Mostrando {{ filteredArticles().length }} componentes</p>
-            <button routerLink="/create-publication" class="btn-accent btn-add-pub">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-              Nueva Publicación
-            </button>
+
+            <div class="header-actions">
+              <button routerLink="/create-publication" class="btn-accent btn-add-pub">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                  <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                  <g id="SVGRepo_iconCarrier"> 
+                    <path d="M12.75 9C12.75 8.58579 12.4142 8.25 12 8.25C11.5858 8.25 11.25 8.58579 11.25 9L11.25 11.25H9C8.58579 11.25 8.25 11.5858 8.25 12C8.25 12.4142 8.58579 12.75 9 12.75H11.25V15C11.25 15.4142 11.5858 15.75 12 15.75C12.4142 15.75 12.75 15.4142 12.75 15L12.75 12.75H15C15.4142 12.75 15.75 12.4142 15.75 12C15.75 11.5858 15.4142 11.25 15 11.25H12.75V9Z" fill="currentColor"></path> 
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12.0574 1.25H11.9426C9.63424 1.24999 7.82519 1.24998 6.41371 1.43975C4.96897 1.63399 3.82895 2.03933 2.93414 2.93414C2.03933 3.82895 1.63399 4.96897 1.43975 6.41371C1.24998 7.82519 1.24999 9.63422 1.25 11.9426V12.0574C1.24999 14.3658 1.24998 16.1748 1.43975 17.5863C1.63399 19.031 2.03933 20.1711 2.93414 21.0659C3.82895 21.9607 4.96897 22.366 6.41371 22.5603C7.82519 22.75 9.63423 22.75 11.9426 22.75H12.0574C14.3658 22.75 16.1748 22.75 17.5863 22.5603C19.031 22.366 20.1711 21.9607 21.0659 21.0659C21.9607 20.1711 22.366 19.031 22.5603 17.5863C22.75 16.1748 22.75 14.3658 22.75 12.0574V11.9426C22.75 9.63423 22.75 7.82519 22.5603 6.41371C22.366 4.96897 21.9607 3.82895 21.0659 2.93414C20.1711 2.03933 19.031 1.63399 17.5863 1.43975C16.1748 1.24998 14.3658 1.24999 12.0574 1.25ZM3.9948 3.9948C4.56445 3.42514 5.33517 3.09825 6.61358 2.92637C7.91356 2.75159 9.62177 2.75 12 2.75C14.3782 2.75 16.0864 2.75159 17.3864 2.92637C18.6648 3.09825 19.4355 3.42514 20.0052 3.9948C20.5749 4.56445 20.9018 5.33517 21.0736 6.61358C21.2484 7.91356 21.25 9.62177 21.25 12C21.25 14.3782 21.2484 16.0864 21.0736 17.3864C20.9018 18.6648 20.5749 19.4355 20.0052 20.0052C19.4355 20.5749 18.6648 20.9018 17.3864 21.0736C16.0864 21.2484 14.3782 21.25 12 21.25C9.62177 21.25 7.91356 21.2484 6.61358 21.0736C5.33517 20.9018 4.56445 20.5749 3.9948 20.0052C3.42514 19.4355 3.09825 18.6648 2.92637 17.3864C2.75159 16.0864 2.75 14.3782 2.75 12C2.75 9.62177 2.75159 7.91356 2.92637 6.61358C3.09825 5.33517 3.42514 4.56445 3.9948 3.9948Z" fill="currentColor"></path> 
+                  </g>
+                </svg>
+                Nueva Publicación
+              </button>
+            </div>
           </div>
 
           <div *ngIf="filteredArticles().length === 0" class="empty-state card-premium">
@@ -110,7 +119,6 @@ import { MockDataService, Article } from '../../services/mock-data.service';
             <div *ngFor="let item of filteredArticles()" class="article-card card-premium">
               <!-- Item Image Wrapper -->
               <div class="card-image-wrapper" [routerLink]="['/product', item.id]">
-                <!-- Draw decorative canvas placeholder or show uploaded image -->
                 <div class="placeholder-img">
                   <img *ngIf="item.images && item.images[0] && (item.images[0].startsWith('data:') || item.images[0].startsWith('http')); else defaultSvg" [src]="item.images[0]" class="card-uploaded-img" alt="Foto del componente" />
                   <ng-template #defaultSvg>
@@ -200,6 +208,32 @@ import { MockDataService, Article } from '../../services/mock-data.service';
         </main>
       </div>
 
+      <!-- Floating Action Buttons for Responsive / Mobile -->
+      <div class="responsive-fabs">
+        <!-- Floating Toggle Filters Button -->
+        <button type="button" (click)="openFiltersDrawer()" class="fab-btn fab-btn-filters" title="Mostrar Filtros">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            </g>
+          </svg>
+        </button>
+
+        <!-- Floating New Publication Button (SVG only) -->
+        <button routerLink="/create-publication" class="fab-btn fab-btn-add" title="Nueva Publicación">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier"> 
+              <path d="M12.75 9C12.75 8.58579 12.4142 8.25 12 8.25C11.5858 8.25 11.25 8.58579 11.25 9L11.25 11.25H9C8.58579 11.25 8.25 11.5858 8.25 12C8.25 12.4142 8.58579 12.75 9 12.75H11.25V15C11.25 15.4142 11.5858 15.75 12 15.75C12.4142 15.75 12.75 15.4142 12.75 15L12.75 12.75H15C15.4142 12.75 15.75 12.4142 15.75 12C15.75 11.5858 15.4142 11.25 15 11.25H12.75V9Z" fill="currentColor"></path> 
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M12.0574 1.25H11.9426C9.63424 1.24999 7.82519 1.24998 6.41371 1.43975C4.96897 1.63399 3.82895 2.03933 2.93414 2.93414C2.03933 3.82895 1.63399 4.96897 1.43975 6.41371C1.24998 7.82519 1.24999 9.63422 1.25 11.9426V12.0574C1.24999 14.3658 1.24998 16.1748 1.43975 17.5863C1.63399 19.031 2.03933 20.1711 2.93414 21.0659C3.82895 21.9607 4.96897 22.366 6.41371 22.5603C7.82519 22.75 9.63423 22.75 11.9426 22.75H12.0574C14.3658 22.75 16.1748 22.75 17.5863 22.5603C19.031 22.366 20.1711 21.9607 21.0659 21.0659C21.9607 20.1711 22.366 19.031 22.5603 17.5863C22.75 16.1748 22.75 14.3658 22.75 12.0574V11.9426C22.75 9.63423 22.75 7.82519 22.5603 6.41371C22.366 4.96897 21.9607 3.82895 21.0659 2.93414C20.1711 2.03933 19.031 1.63399 17.5863 1.43975C16.1748 1.24998 14.3658 1.24999 12.0574 1.25ZM3.9948 3.9948C4.56445 3.42514 5.33517 3.09825 6.61358 2.92637C7.91356 2.75159 9.62177 2.75 12 2.75C14.3782 2.75 16.0864 2.75159 17.3864 2.92637C18.6648 3.09825 19.4355 3.42514 20.0052 3.9948C20.5749 4.56445 20.9018 5.33517 21.0736 6.61358C21.2484 7.91356 21.25 9.62177 21.25 12C21.25 14.3782 21.2484 16.0864 21.0736 17.3864C20.9018 18.6648 20.5749 19.4355 20.0052 20.0052C19.4355 20.5749 18.6648 20.9018 17.3864 21.0736C16.0864 21.2484 14.3782 21.25 12 21.25C9.62177 21.25 7.91356 21.2484 6.61358 21.0736C5.33517 20.9018 4.56445 20.5749 3.9948 20.0052C3.42514 19.4355 3.09825 18.6648 2.92637 17.3864C2.75159 16.0864 2.75 14.3782 2.75 12C2.75 9.62177 2.75159 7.91356 2.92637 6.61358C3.09825 5.33517 3.42514 4.56445 3.9948 3.9948Z" fill="currentColor"></path> 
+            </g>
+          </svg>
+        </button>
+      </div>
+
       <!-- Welcome Toast -->
       <div *ngIf="showWelcomeModal()" class="welcome-toast card-premium">
         <div class="welcome-toast-content">
@@ -217,42 +251,6 @@ import { MockDataService, Article } from '../../services/mock-data.service';
       padding-top: 20px;
     }
 
-    /* Top Horizontal Tabs */
-    .top-nav-tabs {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 12px;
-      margin-bottom: 24px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .tab-btn {
-      padding: 10px 20px;
-      background: #ffffff;
-      border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-sm);
-      font-family: var(--font-heading);
-      font-weight: 600;
-      color: var(--text-muted);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all var(--transition-fast);
-    }
-
-    .tab-btn:hover {
-      background: var(--primary-color-light);
-      color: var(--primary-color);
-      border-color: var(--primary-color);
-    }
-
-    .tab-btn.active {
-      background: var(--accent-color);
-      color: var(--text-inverse);
-      border-color: var(--accent-color);
-      box-shadow: 0 4px 10px rgba(10, 136, 138, 0.15);
-    }
-
     /* Grid layout */
     .catalog-layout {
       display: grid;
@@ -261,19 +259,36 @@ import { MockDataService, Article } from '../../services/mock-data.service';
       align-items: start;
     }
 
-    @media (max-width: 992px) {
-      .catalog-layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Sidebar Filters */
+    /* Sidebar Filters (Default Desktop) */
     .sidebar-filters {
       background: #ffffff;
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius-md);
       padding: 24px;
       box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      position: static;
+      width: 100%;
+      height: auto;
+      backdrop-filter: none;
+      z-index: 1;
+    }
+
+    /* Hide close button and mobile header on desktop */
+    .drawer-header-mobile {
+      display: none;
+    }
+
+    /* Floating action buttons container (Hidden on Desktop) */
+    .responsive-fabs {
+      display: none;
+    }
+
+    /* Backdrop overlay hidden on desktop */
+    .drawer-backdrop {
+      display: none;
     }
 
     .filter-section {
@@ -332,6 +347,156 @@ import { MockDataService, Article } from '../../services/mock-data.service';
       margin-top: 16px;
       padding: 8px;
       font-size: 0.9rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+      .catalog-layout {
+        grid-template-columns: 1fr;
+      }
+
+      /* Sidebar Filters Drawer on responsive screens */
+      .sidebar-filters {
+        position: fixed;
+        top: 0;
+        left: -340px; /* Hide by default */
+        width: 320px;
+        height: 100vh;
+        z-index: 1100;
+        background: rgba(255, 255, 255, 0.75); /* semi-transparent for blur */
+        backdrop-filter: blur(16px); /* blur effect */
+        box-shadow: var(--shadow-lg);
+        transition: left var(--transition-normal);
+        overflow-y: auto;
+        border-radius: 0 !important;
+        border: none !important;
+        border-right: 1px solid var(--border-color) !important;
+        padding: 32px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .sidebar-filters.drawer-open {
+        left: 0;
+      }
+
+      .drawer-header-mobile {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 16px;
+        margin-bottom: 8px;
+      }
+
+      .drawer-header-mobile h3 {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--primary-color);
+      }
+
+      .btn-close-drawer {
+        background: #f1f5f9;
+        border: none;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: all var(--transition-fast);
+      }
+
+      .btn-close-drawer:hover {
+        background: #e2e8f0;
+        color: var(--text-main);
+      }
+
+      /* Hide the default desktop "Nueva Publicación" button */
+      .btn-add-pub {
+        display: none !important;
+      }
+
+      /* Backdrop overlay */
+      .drawer-backdrop {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(15, 23, 42, 0.25);
+        backdrop-filter: blur(8px);
+        z-index: 1050;
+        animation: drawerFadeIn 0.2s ease-out;
+      }
+
+      /* Show Fabs on responsive screens */
+      .responsive-fabs {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 1040;
+      }
+
+      .fab-btn {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(0, 51, 102, 0.25);
+        transition: all var(--transition-fast);
+      }
+
+      .fab-btn:hover {
+        transform: translateY(-3px) scale(1.05);
+      }
+
+      .fab-btn-filters {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .fab-btn-filters:hover {
+        background-color: var(--primary-color-hover);
+        box-shadow: 0 6px 20px rgba(0, 51, 102, 0.35);
+      }
+
+      .fab-btn-add {
+        background-color: var(--accent-color);
+        color: white;
+      }
+
+      .fab-btn-add:hover {
+        background-color: var(--accent-color-hover);
+        box-shadow: 0 6px 20px rgba(10, 136, 138, 0.35);
+      }
+    }
+
+    @keyframes drawerFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 480px) {
+      .grid-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .results-count {
+        text-align: center;
+      }
     }
 
     /* Grid Content Area */
@@ -664,6 +829,15 @@ export class CatalogComponent implements OnInit {
   private router = inject(Router);
 
   showWelcomeModal = signal(false);
+  showFiltersDrawer = signal(false);
+
+  openFiltersDrawer() {
+    this.showFiltersDrawer.set(true);
+  }
+
+  closeFiltersDrawer() {
+    this.showFiltersDrawer.set(false);
+  }
 
   ngOnInit() {
     if (sessionStorage.getItem('show_welcome_modal') === 'true') {
@@ -682,13 +856,9 @@ export class CatalogComponent implements OnInit {
   }
 
   // Filters State
-  selectedTab = signal<string>('Todo');
   selectedCategory = signal<string | null>(null);
   selectedState = signal<string | null>(null);
   selectedAcquisition = signal<string | null>(null);
-
-  // Static options
-  tabs = ['Todo', 'Dispositivos', 'Tarjetas de desarrollo', 'Compuertas lógicas', 'Cables', 'Resistencias'];
   
   categories = [
     'Semiconductores',
@@ -707,7 +877,6 @@ export class CatalogComponent implements OnInit {
   filteredArticles = computed(() => {
     const list = this.mockService.publications();
     const query = this.mockService.searchQuery().toLowerCase().trim();
-    const tab = this.selectedTab();
     const cat = this.selectedCategory();
     const st = this.selectedState();
     const acq = this.selectedAcquisition();
@@ -721,33 +890,18 @@ export class CatalogComponent implements OnInit {
         if (!matchesTitle && !matchesDesc && !matchesSeller) return false;
       }
 
-      // 2. Horizontal Category Tabs (Todo, Dispositivos, Tarjetas de desarrollo, Compuertas lógicas, Cables, Resistencias)
-      if (tab !== 'Todo') {
-        // Map tab names to item properties if applicable
-        if (tab === 'Tarjetas de desarrollo' && item.category !== 'Tarjetas de desarrollo') return false;
-        if (tab === 'Compuertas lógicas' && item.category !== 'Semiconductores') return false; // In electronic logicgates are semiconductors
-        if (tab === 'Resistencias' && item.category !== 'Pasivos') return false; // Resistances are passive
-        if (tab === 'Cables' && item.category !== 'Kits Completos' && !item.title.toLowerCase().includes('cable')) return false;
-        if (tab === 'Dispositivos' && item.category !== 'Semiconductores' && item.category !== 'Módulos y Sensores') return false;
-      }
-
-      // 3. Sidebar Category Filter
+      // 2. Sidebar Category Filter
       if (cat && item.category !== cat) return false;
 
-      // 4. Sidebar State Filter
+      // 3. Sidebar State Filter
       if (st && item.state !== st) return false;
 
-      // 5. Sidebar Acquisition Type Filter
+      // 4. Sidebar Acquisition Type Filter
       if (acq && item.acquisitionType !== acq) return false;
 
       return true;
     });
   });
-
-  // Action methods
-  selectTab(tab: string) {
-    this.selectedTab.set(tab);
-  }
 
   toggleCategory(cat: string) {
     if (this.selectedCategory() === cat) {
@@ -774,18 +928,17 @@ export class CatalogComponent implements OnInit {
   }
 
   hasActiveFilters(): boolean {
-    return this.selectedTab() !== 'Todo' || 
-           this.selectedCategory() !== null || 
+    return this.selectedCategory() !== null || 
            this.selectedState() !== null || 
            this.selectedAcquisition() !== null ||
            this.mockService.searchQuery() !== '';
   }
 
   resetFilters() {
-    this.selectedTab.set('Todo');
     this.selectedCategory.set(null);
     this.selectedState.set(null);
     this.selectedAcquisition.set(null);
     this.mockService.searchQuery.set('');
+    this.showFiltersDrawer.set(false);
   }
 }

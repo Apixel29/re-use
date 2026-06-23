@@ -342,6 +342,19 @@ import axios from 'axios';
     @keyframes drawStroke {
       to { stroke-dashoffset: 0; }
     }
+
+    @media (max-width: 480px) {
+      .reset-wrapper {
+        padding: 16px;
+      }
+      .reset-card {
+        padding: 24px;
+        gap: 20px;
+      }
+      .title {
+        font-size: 1.4rem;
+      }
+    }
   `]
 })
 export class ResetPasswordComponent implements OnInit {

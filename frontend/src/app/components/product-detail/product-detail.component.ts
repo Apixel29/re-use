@@ -245,7 +245,7 @@ import { MockDataService, Article } from '../../services/mock-data.service';
     .floating-back-btn {
       position: fixed;
       top: 100px;
-      left: 40px;
+      right: 40px;
       z-index: 99;
       width: 46px;
       height: 46px;
@@ -269,7 +269,7 @@ import { MockDataService, Article } from '../../services/mock-data.service';
     }
     @media (max-width: 1200px) {
       .floating-back-btn {
-        left: 16px;
+        right: 16px;
         top: 90px;
         width: 40px;
         height: 40px;
@@ -365,13 +365,14 @@ import { MockDataService, Article } from '../../services/mock-data.service';
     .state-badge.usado { background-color: #7f8c8d; }
 
     .thumbnails-row {
-      display: grid;
-      grid-template-columns: repeat(3, 80px) 48px;
+      display: flex;
       gap: 12px;
+      flex-wrap: wrap;
     }
 
     .thumb-card {
       height: 80px;
+      width: 80px;
       background: #ffffff;
       border: 1.5px solid var(--border-color);
       border-radius: var(--border-radius-sm);
@@ -412,6 +413,7 @@ import { MockDataService, Article } from '../../services/mock-data.service';
 
     .btn-thumb-add {
       height: 80px;
+      width: 48px;
       background: #ffffff;
       border: 2px dashed var(--border-color);
       border-radius: var(--border-radius-sm);
@@ -766,6 +768,25 @@ import { MockDataService, Article } from '../../services/mock-data.service';
       align-items: center;
       gap: 16px;
       padding: 40px;
+    }
+
+    @media (max-width: 768px) {
+      .product-detail-container {
+        position: relative;
+        padding-top: 0;
+      }
+      .product-title {
+        font-size: 1.8rem;
+      }
+      .info-card {
+        padding: 20px;
+      }
+      .main-image-card {
+        height: 280px;
+      }
+      .detail-uploaded-img {
+        height: 280px;
+      }
     }
   `]
 })

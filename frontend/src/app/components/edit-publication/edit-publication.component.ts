@@ -330,7 +330,7 @@ import { MockDataService, Article, Specification } from '../../services/mock-dat
     .floating-back-btn {
       position: fixed;
       top: 100px;
-      left: 40px;
+      right: 40px;
       z-index: 99;
       width: 46px;
       height: 46px;
@@ -354,7 +354,7 @@ import { MockDataService, Article, Specification } from '../../services/mock-dat
     }
     @media (max-width: 1200px) {
       .floating-back-btn {
-        left: 16px;
+        right: 16px;
         top: 90px;
         width: 40px;
         height: 40px;
@@ -458,13 +458,14 @@ import { MockDataService, Article, Specification } from '../../services/mock-dat
     }
 
     .image-thumbs-edit-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr) 48px;
+      display: flex;
       gap: 12px;
+      flex-wrap: wrap;
     }
 
     .thumb-edit-box {
       height: 70px;
+      width: 70px;
       background: #ffffff;
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius-sm);
@@ -477,6 +478,7 @@ import { MockDataService, Article, Specification } from '../../services/mock-dat
 
     .btn-thumb-add {
       height: 70px;
+      width: 48px;
       border: 2px dashed var(--border-color);
       background: #ffffff;
       border-radius: var(--border-radius-sm);
@@ -735,6 +737,39 @@ import { MockDataService, Article, Specification } from '../../services/mock-dat
     @keyframes modalScaleIn {
       from { transform: scale(0.92); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .edit-pub-container {
+        position: relative;
+        padding-top: 0;
+      }
+      .page-title {
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+      }
+      .form-card {
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .specs-labels-row {
+        display: none;
+      }
+      .spec-input-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        position: relative;
+        border: 1px solid var(--border-color);
+        padding: 12px;
+        border-radius: var(--border-radius-sm);
+        background-color: #f8fafc;
+      }
+      .btn-remove-spec {
+        width: 100%;
+        height: 36px;
+      }
     }
   `]
 })

@@ -309,6 +309,19 @@ import axios from 'axios';
     @keyframes drawStroke {
       to { stroke-dashoffset: 0; }
     }
+
+    @media (max-width: 480px) {
+      .forgot-wrapper {
+        padding: 16px;
+      }
+      .forgot-card {
+        padding: 24px;
+        gap: 20px;
+      }
+      .title {
+        font-size: 1.4rem;
+      }
+    }
   `]
 })
 export class ForgotPasswordComponent {
