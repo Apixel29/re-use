@@ -52,7 +52,11 @@ exports.register = async (req, res) => {
 
         // 5. Enlace de activación
         const verifyToken = jwt.sign({ id: newUserId }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        const activationLink = `http://localhost:3000/api/auth/verify/${verifyToken}`;
+        
+        // Determinar dinámicamente la base URL del backend
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+        const host = req.get('host');
+        const activationLink = `${protocol}://${host}/api/auth/verify/${verifyToken}`;
         
         // Simulación en consola (mantenida para facilidad de pruebas)
         console.log(`[MVP SIMULACIÓN EMAIL] Enlace de validación para ${correo}: ${activationLink}`);
@@ -75,9 +79,10 @@ exports.register = async (req, res) => {
 
 exports.verify = async (req, res) => {
     const { token } = req.params;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
 
     if (!token) {
-        return res.redirect('http://localhost:4200/email-verified?status=error&message=Falta el token de verificación.');
+        return res.redirect(`${frontendUrl}/email-verified?status=error&message=Falta el token de verificación.`);
     }
 
     try {
@@ -96,15 +101,15 @@ exports.verify = async (req, res) => {
 
         // Si el token es válido pero el usuario ya no existe en la BD
         if (result.rows.length === 0) {
-            return res.redirect('http://localhost:4200/email-verified?status=error&message=Usuario no encontrado.');
+            return res.redirect(`${frontendUrl}/email-verified?status=error&message=Usuario no encontrado.`);
         }
 
         // 3. Confirmación exitosa - redirección al frontend
-        res.redirect('http://localhost:4200/email-verified?status=success');
+        res.redirect(`${frontendUrl}/email-verified?status=success`);
 
     } catch (error) {
         console.error('Error en verificación:', error);
-        res.redirect(`http://localhost:4200/email-verified?status=error&message=${encodeURIComponent(error.message || 'Token inválido o expirado')}`);
+        res.redirect(`${frontendUrl}/email-verified?status=error&message=${encodeURIComponent(error.message || 'Token inválido o expirado')}`);
     }
 };
 
@@ -186,7 +191,8 @@ exports.forgotPassword = async (req, res) => {
             { expiresIn: '15m' }
         );
 
-        const resetLink = `http://localhost:4200/reset-password?token=${resetToken}`;
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+        const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
 
         // Simulación en consola (mantenida para facilidad de pruebas)
         console.log(`[MVP SIMULACIÓN EMAIL] Enlace de recuperación para ${correo}: ${resetLink}`);
