@@ -1,26 +1,44 @@
-const nodemailer = require('nodemailer');
-
-// Initialize transporter only if credentials exist in environment variables
-const createTransporter = () => {
-    const user = process.env.SMTP_USER;
-    const pass = process.env.SMTP_PASS;
-
-    if (!user || !pass || user.includes('tu_correo') || pass.includes('tu_contrasena')) {
-        return null;
+/**
+ * Helper to send email using Resend API (HTTP POST)
+ */
+const sendWithResend = async (to, subject, htmlContent) => {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+        console.warn('[EMAIL SERVICE] No se pudo enviar el correo porque RESEND_API_KEY no está configurada.');
+        return false;
     }
 
-    return nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false, // false para usar STARTTLS en puerto 587
-        auth: {
-            user: user.trim(),
-            pass: pass.trim()
-        },
-        connectionTimeout: 10000, // 10 segundos
-        socketTimeout: 10000,
-        greetingTimeout: 10000
-    });
+    // En la capa gratuita de Resend sin dominio verificado, el remitente obligatorio es onboarding@resend.dev
+    const fromAddress = 'RE-USE <onboarding@resend.dev>';
+
+    try {
+        const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey.trim()}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                from: fromAddress,
+                to: [to.trim()],
+                subject: subject,
+                html: htmlContent
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            console.log(`[EMAIL SERVICE] Correo enviado con éxito a ${to}. ID: ${data.id}`);
+            return true;
+        } else {
+            console.error(`[EMAIL SERVICE] Error de Resend API al enviar a ${to}:`, data);
+            return false;
+        }
+    } catch (error) {
+        console.error(`[EMAIL SERVICE] Error de conexión al enviar correo a ${to}:`, error);
+        return false;
+    }
 };
 
 /**
@@ -30,14 +48,6 @@ const createTransporter = () => {
  * @param {string} link - Activation link
  */
 exports.sendVerificationEmail = async (to, name, link) => {
-    const transporter = createTransporter();
-    if (!transporter) {
-        console.warn('[EMAIL SERVICE] Correo de verificación omitido. SMTP_USER y/o SMTP_PASS no están configurados en las variables de entorno.');
-        return;
-    }
-
-    const fromAddress = process.env.SMTP_FROM || `"RE-USE" <${process.env.SMTP_USER}>`;
-
     const htmlContent = `
     <!DOCTYPE html>
     <html lang="es">
@@ -147,17 +157,7 @@ exports.sendVerificationEmail = async (to, name, link) => {
     </html>
     `;
 
-    try {
-        await transporter.sendMail({
-            from: fromAddress,
-            to: to,
-            subject: 'Valida tu Cuenta | RE-USE',
-            html: htmlContent
-        });
-        console.log(`[EMAIL SERVICE] Correo de verificación enviado con éxito a ${to}`);
-    } catch (error) {
-        console.error(`[EMAIL SERVICE] Error al enviar correo de verificación a ${to}:`, error);
-    }
+    await sendWithResend(to, 'Valida tu Cuenta | RE-USE', htmlContent);
 };
 
 /**
@@ -167,14 +167,6 @@ exports.sendVerificationEmail = async (to, name, link) => {
  * @param {string} link - Reset link
  */
 exports.sendPasswordResetEmail = async (to, name, link) => {
-    const transporter = createTransporter();
-    if (!transporter) {
-        console.warn('[EMAIL SERVICE] Correo de restablecimiento de contraseña omitido. SMTP_USER y/o SMTP_PASS no están configurados en las variables de entorno.');
-        return;
-    }
-
-    const fromAddress = process.env.SMTP_FROM || `"RE-USE" <${process.env.SMTP_USER}>`;
-
     const htmlContent = `
     <!DOCTYPE html>
     <html lang="es">
@@ -284,15 +276,5 @@ exports.sendPasswordResetEmail = async (to, name, link) => {
     </html>
     `;
 
-    try {
-        await transporter.sendMail({
-            from: fromAddress,
-            to: to,
-            subject: 'Recuperar Contraseña | RE-USE',
-            html: htmlContent
-        });
-        console.log(`[EMAIL SERVICE] Correo de recuperación enviado con éxito a ${to}`);
-    } catch (error) {
-        console.error(`[EMAIL SERVICE] Error al enviar correo de recuperación a ${to}:`, error);
-    }
+    await sendWithResend(to, 'Recuperar Contraseña | RE-USE', htmlContent);
 };
