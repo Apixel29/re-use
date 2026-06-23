@@ -81,13 +81,18 @@ exports.verify = async (req, res) => {
     const { token } = req.params;
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
 
+    console.log('--- VERIFY TOKEN DEBUG ---');
+    console.log('Received token:', JSON.stringify(token));
+    console.log('Token length:', token ? token.length : 0);
+    console.log('--------------------------');
+
     if (!token) {
         return res.redirect(`${frontendUrl}/email-verified?status=error&message=Falta el token de verificación.`);
     }
 
     try {
         // 1. Decodificar y verificar la firma del token temporal
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token.trim(), process.env.JWT_SECRET);
         const userId = decoded.id;
 
         // 2. Actualizar el estado del usuario a verificado
