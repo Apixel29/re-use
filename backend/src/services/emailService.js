@@ -1,38 +1,38 @@
 /**
- * Helper to send email using Resend API (HTTP POST)
+ * Helper to send email using Brevo API (HTTP POST)
  */
-const sendWithResend = async (to, subject, htmlContent) => {
-    const apiKey = process.env.RESEND_API_KEY;
+const sendWithBrevo = async (to, subject, htmlContent) => {
+    const apiKey = process.env.BREVO_API_KEY;
     if (!apiKey) {
-        console.warn('[EMAIL SERVICE] No se pudo enviar el correo porque RESEND_API_KEY no está configurada.');
+        console.warn('[EMAIL SERVICE] No se pudo enviar el correo porque BREVO_API_KEY no está configurada.');
         return false;
     }
 
-    // En la capa gratuita de Resend sin dominio verificado, el remitente obligatorio es onboarding@resend.dev
-    const fromAddress = 'RE-USE <onboarding@resend.dev>';
+    const senderEmail = process.env.SMTP_USER || 'gonzalezmarquezhectoroctavio@gmail.com';
+    const senderName = 'RE-USE';
 
     try {
-        const response = await fetch('https://api.resend.com/emails', {
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${apiKey.trim()}`,
+                'api-key': apiKey.trim(),
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                from: fromAddress,
-                to: [to.trim()],
+                sender: { name: senderName, email: senderEmail.trim() },
+                to: [{ email: to.trim() }],
                 subject: subject,
-                html: htmlContent
+                htmlContent: htmlContent
             })
         });
 
         const data = await response.json();
 
         if (response.ok) {
-            console.log(`[EMAIL SERVICE] Correo enviado con éxito a ${to}. ID: ${data.id}`);
+            console.log(`[EMAIL SERVICE] Correo enviado con éxito a ${to}. ID: ${data.messageId}`);
             return true;
         } else {
-            console.error(`[EMAIL SERVICE] Error de Resend API al enviar a ${to}:`, data);
+            console.error(`[EMAIL SERVICE] Error de Brevo API al enviar a ${to}:`, data);
             return false;
         }
     } catch (error) {
@@ -157,7 +157,7 @@ exports.sendVerificationEmail = async (to, name, link) => {
     </html>
     `;
 
-    await sendWithResend(to, 'Valida tu Cuenta | RE-USE', htmlContent);
+    await sendWithBrevo(to, 'Valida tu Cuenta | RE-USE', htmlContent);
 };
 
 /**
@@ -276,5 +276,5 @@ exports.sendPasswordResetEmail = async (to, name, link) => {
     </html>
     `;
 
-    await sendWithResend(to, 'Recuperar Contraseña | RE-USE', htmlContent);
+    await sendWithBrevo(to, 'Recuperar Contraseña | RE-USE', htmlContent);
 };
